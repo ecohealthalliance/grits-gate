@@ -1,18 +1,23 @@
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'groovy'
 
 repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 dependencies {
     compile "org.apache.httpcomponents:httpclient:4.5"
     compile "commons-validator:commons-validator:1.4.1"
     compile "org.apache.logging.log4j:log4j-api:2.3"
     compile "org.apache.logging.log4j:log4j-core:2.3"
+    compile 'org.codehaus.groovy:groovy:2.3.7'
+    compile 'uk.ac.gate:gate-core:8.1'
+    compile files("GATE/bin/gate.jar")
+    compile files('GATE/lib')
 }
 
 sourceSets {
@@ -20,21 +25,34 @@ sourceSets {
         java {
             srcDir 'src/com/eha/grits'
         }
+        groovy {
+            srcDir 'src/groovy'
+        }
         resources {
             srcDir 'src/resources'
         }
     }
 }
 
+task getDeps(type: Copy) {
+  from sourceSets.main.runtimeClasspath
+  into 'runtime/'
+}
 
-mainClassName = 'com.eha.grits.GritsLaunch'
+//mainClassName = 'groovy.Test'
+mainClassName = 'com.eha.grits.StandAloneAnnie'
+//mainClassName = 'com.eha.grits.GritsLaunch'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
 }
 
 run {
+    // classpath = project.sourceSets.main.runtimeClasspath + files("${projectDir}/GATE/bin/gate.jar") + files("${projectDir}/GATE/lib")
+    //systemProperties["gate.home"] = project.configurations.compile.find { it.name.startsWith("gate-core") } .getPath()
     if(project.hasProperty('args')){
         args project.args.split('POST-CONTENT:')    
+    } else {
+        args "https://en.wikipedia.org/wiki/Main_Page"
     }
 }

@@ -3,5 +3,7 @@
 bin/
 build/
 logs/
-
-
+GATE/
+*.HTML
+runtime/
+log4j.properties
